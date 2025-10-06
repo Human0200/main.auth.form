@@ -1,6 +1,5 @@
 <?php
-if (!defined('B_PROLOG_INCLUDED') || B_PROLOG_INCLUDED !== true)
-{
+if (!defined('B_PROLOG_INCLUDED') || B_PROLOG_INCLUDED !== true) {
 	die();
 }
 
@@ -53,8 +52,7 @@ class MainAuthFormComponent extends \CBitrixComponent
 	{
 		$application = null;
 
-		if ($application === null)
-		{
+		if ($application === null) {
 			$application = $GLOBALS['APPLICATION'];
 		}
 
@@ -69,8 +67,7 @@ class MainAuthFormComponent extends \CBitrixComponent
 	{
 		$user = null;
 
-		if ($user === null)
-		{
+		if ($user === null) {
 			$user = $GLOBALS['USER'];
 		}
 
@@ -105,8 +102,7 @@ class MainAuthFormComponent extends \CBitrixComponent
 	 */
 	protected function checkParam($var, $default)
 	{
-		if (!isset($this->arParams[$var]))
-		{
+		if (!isset($this->arParams[$var])) {
 			$this->arParams[$var] = $default;
 		}
 		return $this->arParams[$var];
@@ -120,8 +116,7 @@ class MainAuthFormComponent extends \CBitrixComponent
 	{
 		static $uri = null;
 
-		if ($uri === null)
-		{
+		if ($uri === null) {
 			$request = \Bitrix\Main\Application::getInstance()->getContext()->getRequest();
 			$curUri = new \Bitrix\Main\Web\Uri($request->getRequestUri());
 			$uri = $curUri->getUri();
@@ -139,8 +134,7 @@ class MainAuthFormComponent extends \CBitrixComponent
 	{
 		static $request = null;
 
-		if ($request === null)
-		{
+		if ($request === null) {
 			$context = \Bitrix\Main\Application::getInstance()->getContext();
 			$request = $context->getRequest();
 		}
@@ -159,8 +153,7 @@ class MainAuthFormComponent extends \CBitrixComponent
 	{
 		static $request = null;
 
-		if ($request === null)
-		{
+		if ($request === null) {
 			$context = \Bitrix\Main\Application::getInstance()->getContext();
 			$request = $context->getRequest();
 		}
@@ -186,17 +179,13 @@ class MainAuthFormComponent extends \CBitrixComponent
 	 */
 	protected function getErrors($string = true)
 	{
-		if ($string)
-		{
+		if ($string) {
 			$errors = [];
-			foreach ($this->errors as $error)
-			{
+			foreach ($this->errors as $error) {
 				$errors[$error->getCode()] = $error->getMessage();
 			}
 			return $errors;
-		}
-		else
-		{
+		} else {
 			return $this->errors;
 		}
 	}
@@ -213,18 +202,14 @@ class MainAuthFormComponent extends \CBitrixComponent
 		if (
 			isset($res['TYPE']) &&
 			$res['TYPE'] == 'ERROR'
-		)
-		{
+		) {
 			$error = true;
 			if (
 				isset($res['MESSAGE']) &&
 				trim($res['MESSAGE'])
-			)
-			{
+			) {
 				$this->addError('ERROR_PROCESSING', $res['MESSAGE']);
-			}
-			else
-			{
+			} else {
 				$this->addError('ERROR_PROCESSING', 'Error occurred.');
 			}
 		}
@@ -242,8 +227,7 @@ class MainAuthFormComponent extends \CBitrixComponent
 		$code = null;
 		$application = $this->getApplication();
 
-		if ($application->NeedCAPTHAForLogin($login))
-		{
+		if ($application->NeedCAPTHAForLogin($login)) {
 			$code = $application->CaptchaGetCode();
 		}
 
@@ -259,16 +243,14 @@ class MainAuthFormComponent extends \CBitrixComponent
 		$services = null;
 		$intranet = false;
 
-		if ($this->arParams['DISABLE_SOCSERV_AUTH'] === 'Y')
-		{
+		if ($this->arParams['DISABLE_SOCSERV_AUTH'] === 'Y') {
 			return $services;
 		}
 
 		if (
 			ModuleManager::isModuleInstalled('intranet') ||
 			ModuleManager::isModuleInstalled('rest')
-		)
-		{
+		) {
 			$intranet = true;
 		}
 
@@ -276,22 +258,18 @@ class MainAuthFormComponent extends \CBitrixComponent
 			!$this->isAuthorized() &&
 			\Bitrix\Main\Loader::includeModule('socialservices') &&
 			$this->getOption('allow_socserv_authorization', 'Y') == 'Y'
-		)
-		{
+		) {
 			$oAuthManager = new \CSocServAuthManager();
 			$authServices = $oAuthManager->GetActiveAuthServices([
-			  	'BACKURL' => $this->getUri(),
+				'BACKURL' => $this->getUri(),
 				'FOR_INTRANET' => $intranet
 			]);
-			if (!empty($authServices))
-			{
+			if (!empty($authServices)) {
 				$services = $authServices;
 				// try authorization throw socialservices
 				$requestAuthId = $this->request('auth_service_id');
-				if (isset($services[$requestAuthId]))
-				{
-					if ($this->request('auth_service_error'))
-					{
+				if (isset($services[$requestAuthId])) {
+					if ($this->request('auth_service_error')) {
 						$this->addError(
 							'ERROR_SOCSERVICES',
 							$oAuthManager->GetError(
@@ -299,12 +277,9 @@ class MainAuthFormComponent extends \CBitrixComponent
 								$this->request('auth_service_error')
 							)
 						);
-					}
-					elseif (!$oAuthManager->Authorize($requestAuthId))
-					{
+					} elseif (!$oAuthManager->Authorize($requestAuthId)) {
 						$ex = $this->getApplication()->GetException();
-						if ($ex)
-						{
+						if ($ex) {
 							$this->addError(
 								'ERROR_SOCSERVICES',
 								$ex->GetString()
@@ -329,11 +304,9 @@ class MainAuthFormComponent extends \CBitrixComponent
 		if (
 			!$isHttps &&
 			$this->getOption('use_encrypted_auth', 'N') == 'Y'
-		)
-		{
+		) {
 			$sec = new \CRsaSecurity();
-			if (($keys = $sec->LoadKeys()))
-			{
+			if (($keys = $sec->LoadKeys())) {
 				$sec->SetKeys($keys);
 				$sec->AddToForm($this->arResult['FORM_ID'], [
 					$this->formFields['password'],
@@ -356,34 +329,27 @@ class MainAuthFormComponent extends \CBitrixComponent
 
 		// store pass checkbox
 		$storePassword = $this->arResult['STORE_PASSWORD'];
-		if ($storePassword == 'Y')
-		{
+		if ($storePassword == 'Y') {
 			$storePassword = $this->requestField('remember');
-			if (!$storePassword)
-			{
+			if (!$storePassword) {
 				$storePassword = 'N';
 			}
 		}
 
 		// check encrypt
-		if ($this->getOption('use_encrypted_auth', 'N') == 'Y')
-		{
+		if ($this->getOption('use_encrypted_auth', 'N') == 'Y') {
 			$sec = new \CRsaSecurity();
-			if (($keys = $sec->LoadKeys()))
-			{
+			if (($keys = $sec->LoadKeys())) {
 				$sec->SetKeys($keys);
 				$errno = $sec->AcceptFromForm([
 					$this->formFields['password']
 				]);
-				if ($errno == CRsaSecurity::ERROR_SESS_CHECK)
-				{
+				if ($errno == CRsaSecurity::ERROR_SESS_CHECK) {
 					$this->addError(
 						'ERROR_SESSION',
 						Loc::getMessage('MAIN_AUTH_FORM_SESS_EXPIRED')
 					);
-				}
-				elseif ($errno < 0)
-				{
+				} elseif ($errno < 0) {
 					$this->addError(
 						'ERROR_DECODE',
 						Loc::getMessage('MAIN_AUTH_FORM_ERR_DECODE', [
@@ -393,37 +359,45 @@ class MainAuthFormComponent extends \CBitrixComponent
 				}
 			}
 			// replace password from global var
-			if (isset($_REQUEST[$this->formFields['password']]))
-			{
+			if (isset($_REQUEST[$this->formFields['password']])) {
 				$password = $_REQUEST[$this->formFields['password']];
 			}
-		}
-		else
-		{
+		} else {
 			$password = $this->requestField('password');
+		}
+
+		// get login or email
+		$loginOrEmail = $this->requestField('login');
+
+		// if email - find login by email
+		if (filter_var($loginOrEmail, FILTER_VALIDATE_EMAIL)) {
+			$rsUser = \CUser::GetList(
+				($by = "ID"),
+				($order = "ASC"),
+				['EMAIL' => $loginOrEmail],
+				['FIELDS' => ['LOGIN']]
+			);
+			if ($arUser = $rsUser->Fetch()) {
+				$loginOrEmail = $arUser['LOGIN'];
+			}
 		}
 
 		// login and redirect on success
 		$res = $this->getUser()->Login(
-			$this->requestField('login'),
+			$loginOrEmail,
 			$password,
 			$storePassword
 		);
 		if (
 			!$this->processingErrors($res)
-		)
-		{
-			if ($this->isOtpRequired(true))
-			{
-				if ($this->request('auth') == 'yes')
-				{
+		) {
+			if ($this->isOtpRequired(true)) {
+				if ($this->request('auth') == 'yes') {
 					$this->refresh([
 						'auth'
-			   		]);
+					]);
 				}
-			}
-			else
-			{
+			} else {
 				$this->successRedirect();
 			}
 		}
@@ -437,12 +411,10 @@ class MainAuthFormComponent extends \CBitrixComponent
 	{
 		// store code checkbox
 		$storeCode = $this->arResult['REMEMBER_OTP'];
-		if ($storeCode == 'Y')
-		{
+		if ($storeCode == 'Y') {
 			$storeCode = $this->requestField('otp_remember');
 		}
-		if (!$storeCode)
-		{
+		if (!$storeCode) {
 			$storeCode = 'N';
 		}
 		// login and redirect
@@ -452,8 +424,7 @@ class MainAuthFormComponent extends \CBitrixComponent
 			$this->request('captcha_word'),
 			$this->request('captcha_sid')
 		);
-		if (!$this->processingErrors($res))
-		{
+		if (!$this->processingErrors($res)) {
 			$this->successRedirect();
 		}
 	}
@@ -464,8 +435,7 @@ class MainAuthFormComponent extends \CBitrixComponent
 	 */
 	protected function successRedirect()
 	{
-		if ($this->arParams['AUTH_SUCCESS_URL'])
-		{
+		if ($this->arParams['AUTH_SUCCESS_URL']) {
 			\localRedirect(
 				$this->arParams['AUTH_SUCCESS_URL']
 			);
@@ -484,15 +454,12 @@ class MainAuthFormComponent extends \CBitrixComponent
 		if (
 			isset($params['add']) && is_array($params['add']) ||
 			isset($params['delete']) && is_array($params['delete'])
-		)
-		{
+		) {
 			$uriSave = new \Bitrix\Main\Web\Uri($uriString);
-			if (isset($params['add']))
-			{
+			if (isset($params['add'])) {
 				$uriSave->addParams($params['add']);
 			}
-			if (isset($params['delete']))
-			{
+			if (isset($params['delete'])) {
 				$uriSave->deleteParams($params['delete']);
 			}
 			$uriString = $uriSave->getUri();
@@ -508,9 +475,9 @@ class MainAuthFormComponent extends \CBitrixComponent
 	protected function isOtpRequired($ignoreReset = false)
 	{
 		return 	!$this->isAuthorized() &&
-			  	($this->request('auth') != 'yes' || $ignoreReset) &&
-			 	\Bitrix\Main\Loader::includeModule('security') &&
-			   	\Bitrix\Security\Mfa\Otp::isOtpRequired();
+			($this->request('auth') != 'yes' || $ignoreReset) &&
+			\Bitrix\Main\Loader::includeModule('security') &&
+			\Bitrix\Security\Mfa\Otp::isOtpRequired();
 	}
 
 	/**
@@ -520,8 +487,7 @@ class MainAuthFormComponent extends \CBitrixComponent
 	public function executeComponent()
 	{
 		// check authorization
-		if ($this->isAuthorized())
-		{
+		if ($this->isAuthorized()) {
 			$this->arResult['AUTHORIZED'] = true;
 			$this->IncludeComponentTemplate();
 			return;
@@ -562,14 +528,10 @@ class MainAuthFormComponent extends \CBitrixComponent
 		$this->arResult['REMEMBER_OTP'] = Option::get('security', 'otp_allow_remember') == 'Y';
 
 		// processing
-		if ($this->requestField('action'))
-		{
-			if ($this->isOtpRequired())
-			{
+		if ($this->requestField('action')) {
+			if ($this->isOtpRequired()) {
 				$this->actionOtp();
-			}
-			else
-			{
+			} else {
 				$this->actionLogin();
 			}
 		}
@@ -578,21 +540,17 @@ class MainAuthFormComponent extends \CBitrixComponent
 		$otp = $this->isOtpRequired();
 
 		// otp required
-		if ($otp)
-		{
-			if (Mfa\Otp::isOtpRequiredByMandatory())
-			{
+		if ($otp) {
+			if (Mfa\Otp::isOtpRequiredByMandatory()) {
 				$this->arResult['OTP_REQUIRED_BY_MANDATORY'] = true;
-			}
-			else if (Mfa\Otp::isCaptchaRequired())
-			{
+			} else if (Mfa\Otp::isCaptchaRequired()) {
 				$this->arResult['CAPTCHA_CODE'] = $this->getApplication()->CaptchaGetCode();
 			}
 			$uriString = $request->getRequestUri();
 			$uriAuth = new \Bitrix\Main\Web\Uri($uriString);
 			$uriAuth->addParams([
-					'auth' => 'yes'
-				]);
+				'auth' => 'yes'
+			]);
 			$this->arResult['AUTH_AUTH_URL'] = $uriAuth->getUri();
 		}
 
